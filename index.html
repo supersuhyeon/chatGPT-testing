@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gpt testing</title>
+</head>
+<body>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+    body{font-family: 'Montserrat', sans-serif; font-size: 14px;}
+    .title {font-size: 20px; margin-bottom: 30px;}
+    .chat-content { height: 350px; overflow-y: scroll; background-color: ghostwhite; padding: 10px;}
+    .line { margin-top: 10px; display: flex;}
+    .chat-box {background: #eee; padding: 5px; max-width: 200px;}
+    .mine {margin-left: auto;}
+    input{width: 200px; height: 22px; border:0 solid black;}
+    #send{border: 0; padding: 8px;}
+    .question{display: flex; flex-direction: row; gap: 10px;}
+  </style>
+  
+  <div class="title">Let's plan for your trip with Maggie!</div>
+  <div class="chat-content">
+    <div class="line">
+      <span class="chat-box">hello? I am maggie! how can i help you for a trip?</span>
+    </div>
+    <div class="line">
+      <span class="chat-box mine">hello!</span>
+    </div>
+  </div>
+<div class="question">
+  <div>
+    <p>where do you want to go?</p>
+    <input class="chat-box" id="input">
+  </div>
+  <div>
+    <p>how many days?</p>
+    <input class="chat-box" id="input2">
+    <button id="send">submit</button>
+  </div>  
+</div>
+    
+
+  <script src="/apikey.js" type="module" defer></script>
+  <script type="module">
+
+    import {config}from '/apikey.js'
+    import { Configuration, OpenAIApi } from 'https://cdn.skypack.dev/openai';
+
+    document.querySelector('#send').addEventListener('click', function(){
+      var template = `<div class="line">
+        <span class="chat-box mine">${ document.querySelector('#input').value }, ${document.querySelector('#input2').value}</span>
+      </div>`
+      document.querySelector('.chat-content').insertAdjacentHTML('beforeend', template);
+
+      const configuration = new Configuration({
+        apiKey: config.apiKey,
+      });
+      const openai = new OpenAIApi(configuration);
+
+      const prompt = `I am planning a trip to ${document.querySelector('#input').value} for ${document.querySelector('#input2').value} and want to visit some of the best tourist attractions could you make a tour plan?`
+      openai.createCompletion({
+        model: "text-davinci-002",
+        prompt: prompt,
+        temperature: 0.7,
+        max_tokens: 256,
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+      }).then((result)=>{
+        var template = `<div class="line">
+          <span class="chat-box">${ result.data.choices[0].text }</span>
+        </div>`
+        document.querySelector('.chat-content').insertAdjacentHTML('beforeend', template);
+        console.log(result)
+      })
+
+    })
+  </script>
+
+</body>
+</html>
